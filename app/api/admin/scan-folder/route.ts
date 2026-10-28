@@ -3,7 +3,6 @@ import fs from 'fs';
 import path from 'path';
 
 const ALLOWED_BASE = path.join(process.cwd(), 'public', 'uploads');
-const PICS_DIR = path.join(process.cwd(), 'public', 'uploads', 'pics');
 
 export const config = {
   api: { bodyParser: false },

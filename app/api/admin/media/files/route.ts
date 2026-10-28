@@ -2,26 +2,39 @@ import { NextRequest } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
+const ALLOWED_BASE = path.join(process.cwd(), 'public', 'uploads');
+
 export const config = {
   api: { bodyParser: false },
 };
 
+interface FileItem {
+  id: number;
+  name: string;
+  type: 'image' | 'video' | 'file';
+  size: string;
+  uploaded: string;
+}
+
 export async function GET() {
   const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
   
-  let files: any[] = [];
+  let files: FileItem[] = [];
   
   try {
     if (fs.existsSync(uploadsDir)) {
       files = fs.readdirSync(uploadsDir).map((fileName) => {
         const filePath = path.join(uploadsDir, fileName);
         const stat = fs.statSync(filePath);
+        const ext = fileName.split('.').pop()?.toLowerCase() || '';
+        const isImage = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'avif'].includes(ext);
+        const isVideo = ['mp4', 'mov', 'webm'].includes(ext);
         return {
-          id: Date.now() - stat.mtimeMs,
+          id: Date.now() - (stat.mtimeMs ?? Date.now()),
           name: fileName,
-          type: fileName.split('.').pop() ? fileName.split('.').pop() === 'mp4' || fileName.split('.').pop() === 'mov' ? 'video' : 'image' : 'file',
+          type: isImage ? 'image' : isVideo ? 'video' : 'file',
           size: formatBytes(stat.size),
-          uploaded: new Date(stat.mtimeMs).toISOString().split('T')[0],
+          uploaded: new Date(stat.mtimeMs ?? Date.now()).toISOString().split('T')[0],
         };
       });
     }
