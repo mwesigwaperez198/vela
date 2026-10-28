@@ -2,11 +2,9 @@ import { NextRequest } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
-const ALLOWED_BASE = path.join(process.cwd(), 'public', 'uploads');
-
 export const config = {
   api: { bodyParser: false },
-};
+}
 
 interface FileItem {
   id: number;
@@ -26,15 +24,16 @@ export async function GET() {
       files = fs.readdirSync(uploadsDir).map((fileName) => {
         const filePath = path.join(uploadsDir, fileName);
         const stat = fs.statSync(filePath);
+        const mtime = stat.mtimeMs ?? Date.now();
         const ext = fileName.split('.').pop()?.toLowerCase() || '';
         const isImage = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'avif'].includes(ext);
         const isVideo = ['mp4', 'mov', 'webm'].includes(ext);
         return {
-          id: Date.now() - (stat.mtimeMs ?? Date.now()),
+          id: Date.now() - mtime,
           name: fileName,
           type: isImage ? 'image' : isVideo ? 'video' : 'file',
           size: formatBytes(stat.size),
-          uploaded: new Date(stat.mtimeMs ?? Date.now()).toISOString().split('T')[0],
+          uploaded: new Date(mtime).toISOString().split('T')[0],
         };
       });
     }

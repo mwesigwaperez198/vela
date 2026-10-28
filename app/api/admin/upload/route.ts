@@ -1,8 +1,10 @@
 import { NextRequest } from 'next/server';
+import fs from 'fs';
+import path from 'path';
 
 export const config = {
   api: { bodyParser: false },
-};
+}
 
 export async function POST(request: NextRequest) {
   const data = await request.formData();
@@ -16,7 +18,6 @@ export async function POST(request: NextRequest) {
 
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
-
   const ext = file.name.split('.').pop() || 'jpg';
   const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}.${ext}`;
   const filepath = `public/uploads/${filename}`;
