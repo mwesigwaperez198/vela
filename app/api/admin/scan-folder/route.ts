@@ -8,6 +8,13 @@ export const config = {
   api: { bodyParser: false },
 };
 
+interface FileItem {
+  name: string;
+  url: string;
+  size: string;
+  type: string;
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const folder = searchParams.get('folder') || '';
@@ -20,7 +27,7 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  let files: any[] = [];
+  let files: FileItem[] = [];
   try {
     if (fs.existsSync(resolved) && fs.statSync(resolved).isDirectory()) {
       files = fs.readdirSync(resolved).map((fileName) => {
@@ -37,7 +44,7 @@ export async function GET(request: NextRequest) {
             type: isImage ? 'image' : isVideo ? 'video' : 'file',
           };
         } catch {
-          return { name: fileName, type: 'error', size: '0' };
+          return { name: fileName, type: 'error', size: '0', url: '' };
         }
       });
     }
