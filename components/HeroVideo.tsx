@@ -59,7 +59,7 @@ export function HeroVideo({ hero }: { hero: CampaignHero }) {
           fill
           sizes="100vw"
           className="object-cover"
-        )
+        />
       )}
 
       {hero.videoUrl && !error && (
