@@ -76,6 +76,8 @@ export default function GalleryPage() {
   const [filterCountry, setFilterCountry] = useState<string>('all');
   const [filterCulture, setFilterCulture] = useState<string>('all');
 
+  // Use as const to get proper type inference
+  const sexes = ['all', 'women', 'men', 'unisex'] as const;
   const countries = ['all', ...new Set(galleryItems.map((item) => item.country))];
   const cultures = ['all', ...new Set(galleryItems.map((item) => item.culture))];
 
@@ -101,12 +103,12 @@ export default function GalleryPage() {
         <div className="mb-12 flex flex-wrap gap-6 text-[11px] font-extralight tracking-editorial uppercase">
           <div className="flex flex-wrap items-center gap-4">
             <span className="text-neutral-500">Sex:</span>
-            {['all', 'women', 'men', 'unisex'].map((sex) => (
+            {sexes.map((sex) => (
               <button
                 key={sex}
-                onClick={() => setFilterSex(sex)}
+                onClick={() => setFilterSex(sex as 'all' | 'women' | 'men' | 'unisex')}
                 className={`pb-1 ${
-                  filterSex === sex
+                  filterSex === (sex as 'all' | 'women' | 'men' | 'unisex')
                     ? 'border-b border-luxuryBlack'
                     : 'border-b border-transparent hover:border-neutral-300'
                 } transition-colors`}
