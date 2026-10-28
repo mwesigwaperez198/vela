@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-white font-sans font-light text-luxuryBlack;
+  }
+  ::selection {
+    background: #d4af37;
+    color: #0d0d0d;
+  }
+  :focus-visible {
+    outline: 1px solid #d4af37;
+    outline-offset: 4px;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Asymmetrical editorial grid: every even card drops, mirroring print layouts. */
+  .editorial-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 1rem;
+    row-gap: 3rem;
+  }
+  .editorial-grid > .product-card:nth-child(even) {
+    margin-top: 3rem;
+  }
+  @media (min-width: 1024px) {
+    .editorial-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      column-gap: 1.5rem;
+      row-gap: 5rem;
+    }
+    .editorial-grid > .product-card:nth-child(even) {
+      margin-top: 6rem;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,22 @@
+# Next.js Apache configuration for shared hosting
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  
+  # Handle Next.js static files
+  RewriteRule ^_next/static/(.*)$ .next/static/$1 [L]
+  RewriteRule ^static/(.*)$ public/static/$1 [L]
+  
+  # Redirect all requests to Next.js
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)$ index.html [L]
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options nosniff
+  Header always set X-Frame-Options DENY
+  Header always set X-XSS-Protection "1; mode=block"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
