@@ -9,11 +9,13 @@ import { NAV_LINKS, SITE_NAME } from '@/lib/site';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
+type NavLink = { label: string; href: string };
+
 export function GhostMenu() {
   const { hidden } = useScrollDirection();
   const { count, open: openCart } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [navLinks, setNavLinks] = useState(NAV_LINKS);
+  const [navLinks, setNavLinks] = useState<NavLink[]>([...NAV_LINKS]);
   const [siteConfig, setSiteConfig] = useState({ brandName: SITE_NAME, showBag: true, ghostNavEnabled: true });
 
   useEffect(() => {
@@ -21,7 +23,11 @@ export function GhostMenu() {
       .then((res) => res.json())
       .then((data) => {
         if (data.nav) {
-          setNavLinks(data.nav.map((n: any) => ({ label: n.label, href: n.href })));
+          setNavLinks(
+            data.nav
+              .filter((n: { visible?: boolean }) => n.visible !== false)
+              .map((n: NavLink) => ({ label: n.label, href: n.href })),
+          );
         }
         if (data.siteConfig) {
           setSiteConfig(data.siteConfig);
@@ -67,7 +73,7 @@ export function GhostMenu() {
                 {menuOpen ? 'Close' : 'Menu'}
               </button>
               <ul className="hidden gap-8 md:flex">
-                {navLinks.map((link: any) => (
+                {navLinks.map((link) => (
                   <li key={link.href}>
                     <Link href={link.href}>{link.label}</Link>
                   </li>
@@ -102,7 +108,7 @@ export function GhostMenu() {
             className="fixed inset-0 z-40 flex flex-col justify-center bg-luxuryBlack px-6 text-white md:hidden"
           >
             <ul className="space-y-6">
-              {navLinks.map((link: any) => (
+              {navLinks.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}

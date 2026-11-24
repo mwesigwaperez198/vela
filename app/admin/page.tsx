@@ -1,32 +1,38 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-export default function AdminDashboard() {
-  const [stats] = useState({
-    products: 24,
-    galleries: 6,
-    campaigns: 3,
-    inquiries: 12,
-    views: 15420,
-  });
+interface Inquiry {
+  id: string;
+  name: string;
+  contact: string;
+  message: string;
+  source: string;
+  createdAt: string;
+}
 
-  const menuItems = [
-    { title: 'Dashboard', href: '/admin', icon: '📊' },
-    { title: 'Products/Fashions', href: '/admin/products', icon: '👗' },
-    { title: 'Gallery Collection', href: '/admin/gallery', icon: '🖼️' },
-    { title: 'Hero Videos & Campaigns', href: '/admin/campaigns', icon: '🎬' },
-    { title: 'Ghost Navigation', href: '/admin/navigation', icon: '🧭' },
-    { title: 'Payments & Settings', href: '/admin/payments', icon: '💳' },
-    { title: 'Media Library', href: '/admin/media', icon: '📁' },
-    { title: 'Advertisements', href: '/admin/ads', icon: '📢' },
-    { title: 'Inquiries & Messages', href: '/admin/inquiries', icon: '💬' },
-    { title: 'Orders & Logs', href: '/admin/orders', icon: '📋' },
-    { title: 'Users & Permissions', href: '/admin/users', icon: '👥' },
-    { title: 'Site Settings', href: '/admin/settings', icon: '⚙️' },
-    { title: 'System Health', href: '/admin/health', icon: '❤️' },
-  ];
+const menuItems = [
+  { title: 'Dashboard', href: '/admin' },
+  { title: 'Products/Fashions', href: '/admin/products' },
+  { title: 'Hero Videos & Campaigns', href: '/admin/campaigns' },
+  { title: 'Ghost Navigation', href: '/admin/navigation' },
+  { title: 'Media Library', href: '/admin/media' },
+  { title: 'Inquiries & Messages', href: '/admin/inquiries' },
+  { title: 'Orders & Logs', href: '/admin/orders' },
+  { title: 'Payments & Settings', href: '/admin/payments' },
+  { title: 'Site Settings', href: '/admin/settings' },
+];
+
+export default function AdminDashboard() {
+  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+
+  useEffect(() => {
+    fetch('/api/admin/inquiries')
+      .then((res) => (res.ok ? res.json() as Promise<{ inquiries: Inquiry[] }> : { inquiries: [] }))
+      .then((data) => setInquiries(data.inquiries))
+      .catch(() => setInquiries([]));
+  }, []);
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -38,12 +44,10 @@ export default function AdminDashboard() {
           </div>
           <nav className="p-4">
             {menuItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-neutral-900 rounded mb-1 transition-colors"
-              >
-                <span>{item.icon}</span>
+              <Link key={item.href} href={item.href}
+                className={`flex items-center gap-3 px-4 py-3 text-sm rounded mb-1 transition-colors ${
+                  item.href === '/admin' ? 'bg-neutral-900' : 'hover:bg-neutral-900'
+                }`}>
                 <span className="font-light">{item.title}</span>
               </Link>
             ))}
@@ -56,26 +60,22 @@ export default function AdminDashboard() {
             <p className="text-neutral-600 font-light">Welcome to DA-VELA Fashions CMS</p>
           </header>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-            <div className="bg-white p-6 border border-neutral-200">
-              <p className="text-[11px] tracking-editorial uppercase text-neutral-500 mb-2">Products</p>
-              <p className="text-3xl font-serif">{stats.products}</p>
-            </div>
-            <div className="bg-white p-6 border border-neutral-200">
-              <p className="text-[11px] tracking-editorial uppercase text-neutral-500 mb-2">Gallery Items</p>
-              <p className="text-3xl font-serif">{stats.galleries}</p>
-            </div>
-            <div className="bg-white p-6 border border-neutral-200">
-              <p className="text-[11px] tracking-editorial uppercase text-neutral-500 mb-2">Campaigns</p>
-              <p className="text-3xl font-serif">{stats.campaigns}</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <div className="bg-white p-6 border border-neutral-200">
               <p className="text-[11px] tracking-editorial uppercase text-neutral-500 mb-2">Inquiries</p>
-              <p className="text-3xl font-serif">{stats.inquiries}</p>
+              <p className="text-3xl font-serif">{inquiries.length}</p>
             </div>
             <div className="bg-white p-6 border border-neutral-200">
-              <p className="text-[11px] tracking-editorial uppercase text-neutral-500 mb-2">Views</p>
-              <p className="text-3xl font-serif">{stats.views.toLocaleString()}</p>
+              <p className="text-[11px] tracking-editorial uppercase text-neutral-500 mb-2">Storefront</p>
+              <Link href="/" className="inline-block mt-2 text-[11px] tracking-editorial uppercase border-b border-luxuryBlack pb-1">
+                View live site
+              </Link>
+            </div>
+            <div className="bg-white p-6 border border-neutral-200">
+              <p className="text-[11px] tracking-editorial uppercase text-neutral-500 mb-2">Gallery</p>
+              <Link href="/gallery" className="inline-block mt-2 text-[11px] tracking-editorial uppercase border-b border-luxuryBlack pb-1">
+                View collection
+              </Link>
             </div>
           </div>
 
@@ -83,69 +83,45 @@ export default function AdminDashboard() {
             <div className="bg-white p-6 border border-neutral-200">
               <h3 className="font-serif text-2xl mb-4">Quick Actions</h3>
               <div className="space-y-2">
-                <Link href="/admin/products/new" className="block p-4 border border-neutral-200 hover:bg-neutral-50 transition-colors">
-                  <p className="font-medium">Add New Fashion/Product</p>
-                  <p className="text-sm text-neutral-500">Upload new designs with images/videos</p>
+                <Link href="/admin/products" className="block p-4 border border-neutral-200 hover:bg-neutral-50 transition-colors">
+                  <p className="font-medium">Manage Products</p>
+                  <p className="text-sm text-neutral-500">Products are synced from the commerce engine</p>
                 </Link>
-                <Link href="/admin/gallery/new" className="block p-4 border border-neutral-200 hover:bg-neutral-50 transition-colors">
-                  <p className="font-medium">Add Gallery Collection</p>
-                  <p className="text-sm text-neutral-500">Create new category by sex, culture, country</p>
+                <Link href="/admin/campaigns" className="block p-4 border border-neutral-200 hover:bg-neutral-50 transition-colors">
+                  <p className="font-medium">Update Hero Campaign</p>
+                  <p className="text-sm text-neutral-500">Edit headline, poster and video</p>
                 </Link>
-                <Link href="/admin/campaigns/new" className="block p-4 border border-neutral-200 hover:bg-neutral-50 transition-colors">
-                  <p className="font-medium">Upload Hero Video</p>
-                  <p className="text-sm text-neutral-500">Update infinite video hero section</p>
+                <Link href="/admin/media" className="block p-4 border border-neutral-200 hover:bg-neutral-50 transition-colors">
+                  <p className="font-medium">Upload Media</p>
+                  <p className="text-sm text-neutral-500">Add images and videos to the library</p>
                 </Link>
-                <Link href="/admin/ads/new" className="block p-4 border border-neutral-200 hover:bg-neutral-50 transition-colors">
-                  <p className="font-medium">Create Advertisement</p>
-                  <p className="text-sm text-neutral-500">Promote collections & campaigns</p>
+                <Link href="/admin/navigation" className="block p-4 border border-neutral-200 hover:bg-neutral-50 transition-colors">
+                  <p className="font-medium">Edit Navigation</p>
+                  <p className="text-sm text-neutral-500">Control the ghost navigation links</p>
                 </Link>
               </div>
             </div>
 
             <div className="bg-white p-6 border border-neutral-200">
               <h3 className="font-serif text-2xl mb-4">Recent Inquiries</h3>
-              <div className="space-y-3">
-                <div className="pb-3 border-b border-neutral-100">
-                  <p className="font-medium text-sm">WhatsApp - 0754321098</p>
-                  <p className="text-xs text-neutral-500">Interested in Kente Royal Collection</p>
-                  <p className="text-xs text-neutral-400 mt-1">2 hours ago</p>
+              {inquiries.length === 0 ? (
+                <p className="text-sm text-neutral-500">No inquiries yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {inquiries.slice(0, 5).map((inquiry) => (
+                    <div key={inquiry.id} className="pb-3 border-b border-neutral-100 last:border-0">
+                      <p className="font-medium text-sm">{inquiry.name} · {inquiry.contact}</p>
+                      <p className="text-xs text-neutral-500">{inquiry.message}</p>
+                      <p className="text-xs text-neutral-400 mt-1">
+                        {new Date(inquiry.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-                <div className="pb-3 border-b border-neutral-100">
-                  <p className="font-medium text-sm">Email - sarah@example.com</p>
-                  <p className="text-xs text-neutral-500">Custom order inquiry</p>
-                  <p className="text-xs text-neutral-400 mt-1">5 hours ago</p>
-                </div>
-                <div className="pb-3">
-                  <p className="font-medium text-sm">Phone - 0789123456</p>
-                  <p className="text-xs text-neutral-500">Pricing for bulk order</p>
-                  <p className="text-xs text-neutral-400 mt-1">1 day ago</p>
-                </div>
-              </div>
+              )}
               <Link href="/admin/inquiries" className="mt-4 inline-block text-[11px] tracking-editorial uppercase border-b border-luxuryBlack pb-1">
                 View All
               </Link>
-            </div>
-          </div>
-
-          <div className="mt-8 bg-white p-6 border border-neutral-200">
-            <h3 className="font-serif text-2xl mb-4">System Health</h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm">Website Online</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm">CMS Operational</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm">Media Storage</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm">All Systems OK</span>
-              </div>
             </div>
           </div>
         </main>

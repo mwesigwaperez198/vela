@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     const { nav } = await request.json();
     cmsStore.updateNav(nav);
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ success: false, error: 'Failed to update navigation' }, { status: 500 });
   }
 }

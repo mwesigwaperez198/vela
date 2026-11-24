@@ -145,13 +145,16 @@ export async function createCheckout(request: CheckoutRequest): Promise<Checkout
       userErrors: { message: string }[];
     };
   }>(
-    `mutation CartCreate($lines: [CartLineInput!]!) {
-       cartCreate(input: { lines: $lines }) {
-         cart { checkoutUrl cost { totalAmount { amount currencyCode } } }
-         userErrors { message }
-       }
-     }`,
-    { lines: request.lines.map((l) => ({ merchandiseId: l.variantId, quantity: l.quantity })) },
+    `mutation CartCreate($lines: [CartLineInput!]!, $note: String) {
+       cartCreate(input: { lines: $lines, note: $note }) {
+          cart { checkoutUrl cost { totalAmount { amount currencyCode } } }
+          userErrors { message }
+        }
+      }`,
+    {
+      lines: request.lines.map((l) => ({ merchandiseId: l.variantId, quantity: l.quantity })),
+      note: request.note,
+    },
     false,
   );
   const { cart, userErrors } = data.cartCreate;

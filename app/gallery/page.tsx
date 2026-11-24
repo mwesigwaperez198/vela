@@ -158,31 +158,29 @@ export default function GalleryPage() {
             <Link
               key={item.id}
               href={`/gallery/${item.id}`}
-              className="group cursor-pointer"
+              className="group block cursor-pointer"
             >
-              <div
-                className="relative aspect-[3/4] overflow-hidden mb-4 group-hover:scale-105 transition-transform duration-700"
-              >
+              <div className="relative aspect-[3/4] overflow-hidden mb-4">
                 <Image
                   src={item.image}
                   alt={item.title}
                   fill
-                  className="object-cover transition-opacity duration-500 group-hover:opacity-90"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
                   sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
-              </div>
-              <div className="absolute inset-0 flex flex-col justify-end p-6">
-                <h2 className="font-serif text-2xl lg:text-3xl group-hover:opacity-70 transition-opacity mb-2">
-                  {item.title}
-                </h2>
-                <div className="flex flex-wrap items-center gap-3 text-[10px] font-extralight tracking-editorial uppercase text-neutral-500">
-                  <span>{item.sex}</span>
-                  <span>•</span>
-                  <span>{item.culture}</span>
-                  <span>•</span>
-                  <span>{item.country}</span>
-                  <span>•</span>
-                  <span>{item.designs} designs</span>
+                <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-luxuryBlack/70 via-luxuryBlack/10 to-transparent p-6">
+                  <h2 className="font-serif text-2xl lg:text-3xl text-white mb-2">
+                    {item.title}
+                  </h2>
+                  <div className="flex flex-wrap items-center gap-3 text-[10px] font-extralight tracking-editorial uppercase text-white/80">
+                    <span>{item.sex}</span>
+                    <span>•</span>
+                    <span>{item.culture}</span>
+                    <span>•</span>
+                    <span>{item.country}</span>
+                    <span>•</span>
+                    <span>{item.designs} designs</span>
+                  </div>
                 </div>
               </div>
             </Link>

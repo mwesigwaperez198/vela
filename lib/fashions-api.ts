@@ -6,8 +6,8 @@ import { cmsConfigured } from '@/lib/env';
 import { FIXTURE_HERO, FIXTURE_PRODUCTS } from '@/lib/fixtures';
 import type { CampaignHero, CommerceProduct, UnifiedProduct, VisualAsset } from '@/lib/types';
 
-/** Fixtures are allowed in development only; production fails loudly on missing config. */
-const useFixtures = (): boolean => process.env.NODE_ENV !== 'production' && !cmsConfigured();
+/** Fall back to bundled fixtures whenever the CMS is not configured. */
+const useFixtures = (): boolean => !cmsConfigured();
 
 function zip(product: CommerceProduct, asset: VisualAsset | undefined): UnifiedProduct {
   const inventoryCount = product.variants.reduce((sum, v) => sum + v.quantity, 0);

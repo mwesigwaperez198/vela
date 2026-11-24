@@ -75,6 +75,7 @@ export interface CartLine {
 
 export interface CheckoutRequest {
   lines: { variantId: string; quantity: number }[];
+  note?: string;
 }
 
 export interface CheckoutResponse {

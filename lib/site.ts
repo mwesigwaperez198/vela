@@ -6,6 +6,7 @@ export const NAV_LINKS = [
   { label: 'Men', href: '/collections/men' },
   { label: 'Gallery Collection', href: '/gallery' },
   { label: 'New in', href: '/collections/new-arrivals' },
+  { label: 'Contact', href: '/contact' },
 ] as const;
 
 export const CONTACT_INFO = {

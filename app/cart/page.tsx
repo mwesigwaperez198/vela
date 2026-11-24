@@ -6,7 +6,7 @@ import { useCart } from '@/components/CartProvider';
 import { formatUGX } from '@/lib/format';
 
 export default function CartPage() {
-  const { lines, remove, updateQuantity, total, clear } = useCart();
+  const { lines, setQuantity, totalUGX, clear } = useCart();
 
   if (lines.length === 0) {
     return (
@@ -37,7 +37,7 @@ export default function CartPage() {
             {lines.map((line) => (
               <div key={line.variantId} className="flex gap-6 pb-6 border-b border-neutral-100">
                 <div className="relative w-32 h-40 flex-shrink-0 bg-neutral-100">
-                  <Image src={line.image} alt={line.title} fill className="object-cover" />
+                  {line.image && <Image src={line.image} alt={line.title} fill className="object-cover" />}
                 </div>
                 <div className="flex-1 flex flex-col justify-between">
                   <div>
@@ -49,11 +49,11 @@ export default function CartPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <button onClick={() => updateQuantity(line.variantId, Math.max(0, line.quantity - 1))} className="text-lg">-</button>
+                      <button onClick={() => setQuantity(line.variantId, line.quantity - 1)} className="text-lg">-</button>
                       <span className="text-sm w-8 text-center">{line.quantity}</span>
-                      <button onClick={() => updateQuantity(line.variantId, line.quantity + 1)} className="text-lg">+</button>
+                      <button onClick={() => setQuantity(line.variantId, line.quantity + 1)} className="text-lg">+</button>
                     </div>
-                    <button onClick={() => remove(line.variantId)} className="text-[11px] tracking-editorial uppercase text-neutral-500 hover:text-luxuryBlack">
+                    <button onClick={() => setQuantity(line.variantId, 0)} className="text-[11px] tracking-editorial uppercase text-neutral-500 hover:text-luxuryBlack">
                       Remove
                     </button>
                   </div>
@@ -68,7 +68,7 @@ export default function CartPage() {
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-sm">
                   <span>Subtotal</span>
-                  <span>{formatUGX(total)}</span>
+                  <span>{formatUGX(totalUGX)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Shipping</span>
@@ -78,7 +78,7 @@ export default function CartPage() {
               <div className="pt-6 border-t border-neutral-200 mb-6">
                 <div className="flex justify-between font-medium">
                   <span>Total</span>
-                  <span>{formatUGX(total)}</span>
+                  <span>{formatUGX(totalUGX)}</span>
                 </div>
               </div>
               <Link href="/checkout" className="block w-full bg-luxuryBlack text-white text-center py-4 text-[11px] tracking-editorial uppercase hover:opacity-90 transition-opacity">

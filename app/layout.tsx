@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
-import { Inter, Playfair_Display, Cormorant_Garamond } from 'next/font/google';
+import Link from 'next/link';
+import { Inter, Cormorant_Garamond } from 'next/font/google';
 import { CartDrawer } from '@/components/CartDrawer';
 import { CartProvider } from '@/components/CartProvider';
 import { GhostMenu } from '@/components/GhostMenu';
@@ -31,9 +32,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div>
                   <p className="text-neutral-700 mb-4">Contact</p>
-                  <p className="mt-2 text-neutral-500">Tel: 0765866555</p>
-                  <p className="mt-2 text-neutral-500">WhatsApp: 0765866555</p>
-                  <p className="mt-2 text-neutral-500">Email: novaratechafrica@gmail.com</p>
+                  <a href="tel:+256765866555" className="mt-2 block text-neutral-500 hover:text-luxuryBlack">Tel: 0765866555</a>
+                  <a href="https://wa.me/256765866555" target="_blank" rel="noopener noreferrer" className="mt-2 block text-neutral-500 hover:text-luxuryBlack">WhatsApp: 0765866555</a>
+                  <a href="mailto:novaratechafrica@gmail.com" className="mt-2 block text-neutral-500 hover:text-luxuryBlack">Email: novaratechafrica@gmail.com</a>
                 </div>
                 <div>
                   <p className="text-neutral-700 mb-4">Location</p>
@@ -42,8 +43,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 </div>
                 <div>
                   <p className="text-neutral-700 mb-4">Info</p>
+                  <Link href="/contact" className="mt-2 block text-neutral-500 hover:text-luxuryBlack">Contact & Enquiries</Link>
+                  <Link href="/gallery" className="mt-2 block text-neutral-500 hover:text-luxuryBlack">Gallery Collection</Link>
+                  <Link href="/cart" className="mt-2 block text-neutral-500 hover:text-luxuryBlack">Your Bag</Link>
                   <p className="mt-2 text-neutral-500">All prices in UGX</p>
-                  <p className="mt-2 text-neutral-500">African Luxury Redefined</p>
                 </div>
               </div>
               <p className="mt-12 text-neutral-400 text-[10px]">© {new Date().getFullYear()} DA-VELA FASHIONS. All rights reserved.</p>

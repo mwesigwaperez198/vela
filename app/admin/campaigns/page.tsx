@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function AdminCampaignsPage() {
   const [heroData, setHeroData] = useState({
@@ -15,18 +15,41 @@ export default function AdminCampaignsPage() {
     alignment: 'left',
   });
   const [editing, setEditing] = useState(false);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    fetch('/api/admin/hero?page=home')
+      .then((res) => (res.ok ? res.json() as Promise<{ hero: typeof heroData | null }> : { hero: null }))
+      .then((data) => {
+        const hero = data.hero;
+        if (!hero) return;
+        setHeroData((current) => ({
+          headline: hero.headline ?? current.headline,
+          subheadline: hero.subheadline ?? '',
+          ctaLabel: hero.ctaLabel ?? current.ctaLabel,
+          ctaHref: hero.ctaHref ?? current.ctaHref,
+          videoUrl: hero.videoUrl ?? '',
+          posterUrl: hero.posterUrl ?? '',
+          textTone: hero.textTone ?? 'dark',
+          alignment: hero.alignment ?? 'left',
+        }));
+      })
+      .catch(() => setMessage('Could not load the saved hero.'));
+  }, []);
 
   const saveHero = async () => {
+    setMessage('');
     try {
-      await fetch('/api/admin/hero', {
+      const res = await fetch('/api/admin/hero', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: 'home-hero', page: 'home', ...heroData, isActive: true }),
       });
-      alert('Hero updated successfully! Changes will appear on the site.');
+      if (!res.ok) throw new Error('Failed to update hero');
+      setMessage('Hero updated. Changes appear on the site immediately while the server is running.');
       setEditing(false);
-    } catch (error) {
-      alert('Failed to update hero');
+    } catch {
+      setMessage('Failed to update hero.');
     }
   };
 
@@ -47,7 +70,7 @@ export default function AdminCampaignsPage() {
             <Link href="/admin/products" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-neutral-900 rounded mb-1">
               <span>👗</span><span className="font-light">Products/Fashions</span>
             </Link>
-            <Link href="/admin/gallery" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-neutral-900 rounded mb-1">
+            <Link href="/admin/media" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-neutral-900 rounded mb-1">
               <span>🖼️</span><span className="font-light">Gallery Collection</span>
             </Link>
             <Link href="/admin/campaigns" className="flex items-center gap-3 px-4 py-3 text-sm bg-neutral-900 rounded mb-1">
@@ -56,7 +79,7 @@ export default function AdminCampaignsPage() {
             <Link href="/admin/media" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-neutral-900 rounded mb-1">
               <span>📁</span><span className="font-light">Media Library</span>
             </Link>
-            <Link href="/admin/ads" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-neutral-900 rounded mb-1">
+            <Link href="/admin/campaigns" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-neutral-900 rounded mb-1">
               <span>📢</span><span className="font-light">Advertisements</span>
             </Link>
             <Link href="/admin/inquiries" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-neutral-900 rounded mb-1">
@@ -74,8 +97,8 @@ export default function AdminCampaignsPage() {
               <h2 className="font-serif text-4xl mb-2">Hero Videos & Campaigns</h2>
               <p className="text-neutral-600 font-light">Manage infinite video hero and campaign banners</p>
             </div>
-            <Link href="/admin/campaigns/new" className="bg-luxuryBlack text-white px-6 py-3 text-[11px] tracking-editorial uppercase hover:opacity-90 transition-opacity">
-              Upload New Hero
+            <Link href="/admin/media" className="bg-luxuryBlack text-white px-6 py-3 text-[11px] tracking-editorial uppercase hover:opacity-90 transition-opacity">
+              Upload Hero Media
             </Link>
           </header>
 
@@ -169,6 +192,16 @@ export default function AdminCampaignsPage() {
                       className="w-full px-4 py-3 border border-neutral-200 focus:outline-none focus:border-luxuryBlack"
                     />
                   </div>
+                  <div>
+                    <label className="block text-[11px] tracking-editorial uppercase text-neutral-600 mb-2">Poster Image URL</label>
+                    <input
+                      type="text"
+                      value={heroData.posterUrl}
+                      onChange={(e) => setHeroData({ ...heroData, posterUrl: e.target.value })}
+                      placeholder="/uploads/pics/women.JPG or full URL"
+                      className="w-full px-4 py-3 border border-neutral-200 focus:outline-none focus:border-luxuryBlack"
+                    />
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -195,6 +228,7 @@ export default function AdminCampaignsPage() {
                     </select>
                   </div>
                 </div>
+                {message && <p role="status" className="text-sm text-neutral-700">{message}</p>}
                 <div className="flex gap-3">
                   <button onClick={saveHero} className="bg-luxuryBlack text-white px-6 py-3 text-[11px] tracking-editorial uppercase hover:opacity-90 transition-opacity">
                     Save Hero

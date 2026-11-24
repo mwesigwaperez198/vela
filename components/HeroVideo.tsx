@@ -35,10 +35,6 @@ export function HeroVideo({ hero }: { hero: CampaignHero }) {
     }
   };
 
-  const handlePosterLoad = () => {
-    setPosterLoaded(true);
-  };
-
   return (
     <section className="relative h-[100svh] w-full overflow-hidden bg-neutral-200">
       {hero.posterUrl && (
@@ -103,7 +99,7 @@ export function HeroVideo({ hero }: { hero: CampaignHero }) {
           href={hero.ctaHref}
           className="border-b border-current pb-1 text-[11px] font-extralight tracking-extra-wide uppercase hover:opacity-70 transition-opacity"
         >
-          {hero.ctaLabel === 'Shop the collection' ? 'Visit Store' : hero.ctaLabel}
+          {hero.ctaLabel}
         </Link>
       </div>
     </section>

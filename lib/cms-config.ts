@@ -21,6 +21,16 @@ export interface NavConfig {
   visible: boolean;
 }
 
+export interface Inquiry {
+  id: string;
+  name: string;
+  contact: string;
+  email: string;
+  message: string;
+  source: string;
+  createdAt: string;
+}
+
 export interface SiteConfig {
   brandName: string;
   brandNameSecondary: string;
@@ -36,6 +46,7 @@ export interface SiteConfig {
 
 class CMSStore {
   private static instance: CMSStore;
+  private inquiries: Inquiry[] = [];
   private heroConfigs: HeroConfig[] = [
     {
       id: 'home-hero',
@@ -45,7 +56,7 @@ class CMSStore {
       ctaLabel: 'Visit Store',
       ctaHref: '/collections/new-arrivals',
       videoUrl: '',
-      posterUrl: '',
+      posterUrl: '/uploads/pics/women.JPG',
       textTone: 'dark',
       alignment: 'left',
       isActive: true,
@@ -56,6 +67,7 @@ class CMSStore {
     { id: '2', label: 'Men', href: '/collections/men', order: 2, visible: true },
     { id: '3', label: 'Gallery Collection', href: '/gallery', order: 3, visible: true },
     { id: '4', label: 'New in', href: '/collections/new-arrivals', order: 4, visible: true },
+    { id: '5', label: 'Contact', href: '/contact', order: 5, visible: true },
   ];
   private siteConfig: SiteConfig = {
     brandName: 'DA-VELA FASHIONS',
@@ -106,12 +118,27 @@ class CMSStore {
     this.navConfigs = navItems;
   }
 
+  addInquiry(input: Omit<Inquiry, 'id' | 'createdAt'>): Inquiry {
+    const inquiry: Inquiry = {
+      ...input,
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      createdAt: new Date().toISOString(),
+    };
+    this.inquiries = [inquiry, ...this.inquiries].slice(0, 100);
+    return inquiry;
+  }
+
+  getAllInquiries(): Inquiry[] {
+    return this.inquiries;
+  }
+
   getSiteConfig(): SiteConfig {
     return this.siteConfig;
   }
 
-  updateSiteConfig(config: Partial<SiteConfig>) {
+  updateSiteConfig(config: Partial<SiteConfig>): SiteConfig {
     this.siteConfig = { ...this.siteConfig, ...config };
+    return this.siteConfig;
   }
 }
 

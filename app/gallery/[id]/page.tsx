@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 
 type Design = {
   id: string;
@@ -162,8 +162,9 @@ const galleryDetails: Record<string, GalleryDetail> = {
   },
 };
 
-export default function GalleryDetailPage({ params }: { params: { id: string } }) {
-  const item = galleryDetails[params.id];
+export default function GalleryDetailPage() {
+  const { id } = useParams<{ id: string }>();
+  const item = galleryDetails[id];
 
   if (!item) {
     return (
@@ -213,9 +214,12 @@ export default function GalleryDetailPage({ params }: { params: { id: string } }
                 <h2 className="font-serif text-4xl lg:text-5xl">{design.name}</h2>
                 <p className="text-lg font-light">UGX {design.priceUGX.toLocaleString()}</p>
                 <div className="flex gap-4">
-                  <button className="border border-luxuryBlack px-8 py-3 text-[11px] tracking-editorial uppercase hover:bg-luxuryBlack hover:text-white transition-colors">
+                  <Link
+                    href={`/contact?design=${encodeURIComponent(design.name)}&collection=${encodeURIComponent(item.title)}`}
+                    className="border border-luxuryBlack px-8 py-3 text-[11px] tracking-editorial uppercase hover:bg-luxuryBlack hover:text-white transition-colors"
+                  >
                     Enquire
-                  </button>
+                  </Link>
                   <a
                     href={`https://wa.me/256765866555?text=Hi, I'm interested in ${design.name} from ${item.title}`}
                     target="_blank"

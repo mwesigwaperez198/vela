@@ -5,11 +5,11 @@ import type { CheckoutRequest } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
-const VARIANT_ID = /^gid:\/\/shopify\/ProductVariant\/\d+$/;
+const VARIANT_ID = /^gid:\/\/shopify\/ProductVariant\/[A-Za-z0-9_-]+={0,2}$/;
 
 function parse(input: unknown): CheckoutRequest | null {
   if (typeof input !== 'object' || input === null || !('lines' in input)) return null;
-  const { lines } = input as { lines: unknown };
+  const { lines, note } = input as { lines: unknown; note?: unknown };
   if (!Array.isArray(lines) || lines.length === 0 || lines.length > 50) return null;
 
   const parsed: CheckoutRequest['lines'] = [];
@@ -26,7 +26,8 @@ function parse(input: unknown): CheckoutRequest | null {
     }
     parsed.push({ variantId: line.variantId, quantity: line.quantity });
   }
-  return { lines: parsed };
+  if (note !== undefined && (typeof note !== 'string' || note.length > 2000)) return null;
+  return { lines: parsed, ...(typeof note === 'string' ? { note } : {}) };
 }
 
 export async function POST(request: Request) {

@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     const hero = await request.json();
     cmsStore.updateHero(hero);
     return NextResponse.json({ success: true, hero });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ success: false, error: 'Failed to update hero' }, { status: 500 });
   }
 }

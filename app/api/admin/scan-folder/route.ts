@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   const folder = searchParams.get('folder') || '';
 
   const resolved = path.resolve(ALLOWED_BASE, folder);
-  if (!resolved.startsWith(ALLOWED_BASE)) {
+  if (resolved !== ALLOWED_BASE && !resolved.startsWith(ALLOWED_BASE + path.sep)) {
     return new Response(JSON.stringify({ error: 'Invalid folder path' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
           const isVideo = ['mp4', 'mov', 'webm'].includes(ext);
           return {
             name: fileName,
-            url: `/${filePath.replace(process.cwd() + '/', '')}`,
+            url: `/uploads/${path.relative(ALLOWED_BASE, filePath).split(path.sep).map(encodeURIComponent).join('/')}`,
             size: formatBytes(stat.size),
             type: isImage ? 'image' : isVideo ? 'video' : 'file',
           };
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
   });
 
   return new Response(
-    JSON.stringify({ files, base: '/public/uploads' }),
+      JSON.stringify({ files, base: '/uploads' }),
     {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
@@ -74,7 +74,7 @@ function formatBytes(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 }
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   return new Response(
     JSON.stringify({ error: 'Use GET with folder parameter' }),
     {

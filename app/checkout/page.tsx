@@ -1,12 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/components/CartProvider';
 import { formatUGX } from '@/lib/format';
+import { CONTACT_INFO } from '@/lib/site';
+import type { CheckoutRequest, CheckoutResponse } from '@/lib/types';
 
 export default function CheckoutPage() {
-  const { lines, total } = useCart();
+  const { lines, totalUGX } = useCart();
   const [formData, setFormData] = useState({
     email: '',
     firstName: '',
@@ -17,16 +20,60 @@ export default function CheckoutPage() {
     country: 'Uganda',
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const whatsappHref = () => {
+    const items = lines.map((line) => `${line.title} (${line.size}) x${line.quantity}`).join(', ');
+    const message = [
+      `Hello DA-VELA, I would like to order: ${items}.`,
+      `Total: ${formatUGX(totalUGX)}`,
+      `Name: ${formData.firstName} ${formData.lastName}`,
+      `Phone/WhatsApp: ${formData.phone}`,
+      `Email: ${formData.email}`,
+      `Delivery: ${formData.address}, ${formData.city}, ${formData.country}`,
+      'Payment: Mobile Money or on delivery',
+    ].join('\n');
+    return `https://wa.me/256${CONTACT_INFO.whatsapp.replace(/^0/, '')}?text=${encodeURIComponent(message)}`;
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Simulate checkout - in production would integrate with payment provider
-    setTimeout(() => {
-      alert('Order placed successfully! We will contact you via WhatsApp/Email.');
+    setError(null);
+
+    const note = [
+      `Name: ${formData.firstName} ${formData.lastName}`,
+      `Phone/WhatsApp: ${formData.phone}`,
+      `Email: ${formData.email}`,
+      `Delivery address: ${formData.address}, ${formData.city}, ${formData.country}`,
+      'Payment preference: Mobile Money or on delivery',
+    ].join('\n');
+
+    const body: CheckoutRequest = {
+      lines: lines.map((line) => ({ variantId: line.variantId, quantity: line.quantity })),
+      note,
+    };
+
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = (await res.json()) as CheckoutResponse & { error?: string };
+      if (!res.ok) {
+        if (res.status === 503) {
+          setError('Online checkout is not configured yet. Please order on WhatsApp and we will arrange Mobile Money or payment on delivery.');
+          return;
+        }
+        throw new Error(data.error ?? 'Checkout could not start.');
+      }
+      window.location.assign(data.checkoutUrl);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Checkout could not start. Try again.');
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   if (lines.length === 0) {
@@ -130,6 +177,20 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
+              {error && (
+                <div role="alert" className="p-4 border border-red-200 bg-red-50 space-y-3">
+                  <p className="text-sm text-red-800">{error}</p>
+                  <a
+                    href={whatsappHref()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block border-b border-luxuryBlack pb-1 text-[11px] tracking-editorial uppercase"
+                  >
+                    Order on WhatsApp
+                  </a>
+                </div>
+              )}
+
               <button
                 type="submit"
                 disabled={loading}
@@ -147,6 +208,7 @@ export default function CheckoutPage() {
                 {lines.map((line) => (
                   <div key={line.variantId} className="flex gap-4">
                     <div className="relative w-16 h-20 flex-shrink-0 bg-neutral-200">
+                      {line.image && <Image src={line.image} alt={line.title} fill className="object-cover" sizes="64px" />}
                       <div className="absolute -top-2 -right-2 bg-luxuryBlack text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">
                         {line.quantity}
                       </div>
@@ -162,17 +224,17 @@ export default function CheckoutPage() {
               <div className="space-y-3 pt-6 border-t border-neutral-200 mb-6">
                 <div className="flex justify-between text-sm">
                   <span>Subtotal</span>
-                  <span>{formatUGX(total)}</span>
+                  <span>{formatUGX(totalUGX)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Shipping</span>
-                  <span>Free</span>
+                  <span>Calculated at checkout</span>
                 </div>
               </div>
               <div className="pt-6 border-t border-neutral-200">
                 <div className="flex justify-between font-medium text-lg">
                   <span>Total</span>
-                  <span>{formatUGX(total)}</span>
+                  <span>{formatUGX(totalUGX)}</span>
                 </div>
               </div>
             </div>

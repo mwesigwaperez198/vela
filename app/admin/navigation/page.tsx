@@ -67,13 +67,14 @@ export default function AdminNavigationPage() {
   const saveNav = async () => {
     setSaving(true);
     try {
-      await fetch('/api/admin/nav', {
+      const res = await fetch('/api/admin/nav', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nav: navItems }),
       });
+      if (!res.ok) throw new Error('Failed to update navigation');
       alert('Navigation updated successfully!');
-    } catch (error) {
+    } catch {
       alert('Failed to update navigation');
     } finally {
       setSaving(false);
@@ -97,7 +98,7 @@ export default function AdminNavigationPage() {
             <Link href="/admin/products" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-neutral-900 rounded mb-1">
               <span>👗</span><span className="font-light">Products/Fashions</span>
             </Link>
-            <Link href="/admin/gallery" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-neutral-900 rounded mb-1">
+            <Link href="/admin/media" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-neutral-900 rounded mb-1">
               <span>🖼️</span><span className="font-light">Gallery Collection</span>
             </Link>
             <Link href="/admin/campaigns" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-neutral-900 rounded mb-1">
@@ -109,7 +110,7 @@ export default function AdminNavigationPage() {
             <Link href="/admin/media" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-neutral-900 rounded mb-1">
               <span>📁</span><span className="font-light">Media Library</span>
             </Link>
-            <Link href="/admin/ads" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-neutral-900 rounded mb-1">
+            <Link href="/admin/campaigns" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-neutral-900 rounded mb-1">
               <span>📢</span><span className="font-light">Advertisements</span>
             </Link>
             <Link href="/admin/inquiries" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-neutral-900 rounded mb-1">
@@ -140,7 +141,7 @@ export default function AdminNavigationPage() {
           <div className="bg-white border border-neutral-200 max-w-4xl">
             <div className="p-6 border-b border-neutral-200">
               <h3 className="font-serif text-xl">Navigation Links</h3>
-              <p className="text-sm text-neutral-500 mt-1">Drag to reorder or use arrows</p>
+                <p className="text-sm text-neutral-500 mt-1">Use the arrows to reorder</p>
             </div>
             <div className="divide-y divide-neutral-100">
               {navItems.map((item, index) => (
