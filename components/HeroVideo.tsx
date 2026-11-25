@@ -68,7 +68,8 @@ export function HeroVideo({ hero }: { hero: CampaignHero }) {
         <style dangerouslySetInnerHTML={{
           __html: `@font-face{font-family:'DA-Vela-Custom';src:url('${customFont}') format('${fontFormat(customFont)}');font-display:swap;font-weight:300 700;}`,
         }}
-      />}
+      />
+      )}
 
       <div className="grid min-h-[100svh] lg:grid-cols-2">
         <div
