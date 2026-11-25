@@ -1,15 +1,11 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { Inter, Cormorant_Garamond } from 'next/font/google';
 import { CartDrawer } from '@/components/CartDrawer';
 import { CartProvider } from '@/components/CartProvider';
 import { GhostMenu } from '@/components/GhostMenu';
 import { SITE_NAME } from '@/lib/site';
 import './globals.css';
-
-const serif = Cormorant_Garamond({ subsets: ['latin'], weight: ['300', '400', '500', '600', '700'], variable: '--font-serif', display: 'swap' });
-const sans = Inter({ subsets: ['latin'], weight: ['200', '300', '400'], variable: '--font-sans', display: 'swap' });
 
 export const metadata: Metadata = {
   title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
@@ -20,7 +16,15 @@ export const viewport: Viewport = { themeColor: '#ffffff' };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en-UG" className={`${serif.variable} ${sans.variable}`}>
+    <html lang="en-UG">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@200;300;400&display=swap"
+        />
+      </head>
       <body>
         <CartProvider>
           <GhostMenu />

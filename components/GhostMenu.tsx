@@ -10,13 +10,24 @@ import { NAV_LINKS, SITE_NAME } from '@/lib/site';
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 type NavLink = { label: string; href: string };
+type SiteMenuConfig = {
+  brandName: string;
+  logoText?: string;
+  showBag: boolean;
+  ghostNavEnabled: boolean;
+};
 
 export function GhostMenu() {
   const { hidden } = useScrollDirection();
   const { count, open: openCart } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
   const [navLinks, setNavLinks] = useState<NavLink[]>([...NAV_LINKS]);
-  const [siteConfig, setSiteConfig] = useState({ brandName: SITE_NAME, showBag: true, ghostNavEnabled: true });
+  const [siteConfig, setSiteConfig] = useState<SiteMenuConfig>({
+    brandName: SITE_NAME,
+    logoText: SITE_NAME,
+    showBag: true,
+    ghostNavEnabled: true,
+  });
 
   useEffect(() => {
     fetch('/api/admin/nav')

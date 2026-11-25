@@ -48,7 +48,7 @@ function collect(directory: string, relative = ''): FileItem[] {
       url: `/uploads/${relativePath.split('/').map(encodeURIComponent).join('/')}`,
       type: IMAGES.includes(ext) ? 'image' : VIDEOS.includes(ext) ? 'video' : 'file',
       size: formatBytes(stat.size),
-      uploaded: new Date(stat.mtime).toISOString().split('T')[0],
+      uploaded: new Date(stat.mtime).toISOString().split('T')[0] ?? '',
     });
   }
   return items;
