@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 export default function AdminCampaignsPage() {
   const [heroData, setHeroData] = useState({
     headline: 'The African Luxury Edit',
+    eyebrow: 'DA-VELA / HOUSE OF ARTS',
     subheadline: 'Heritage reimagined. Craft with purpose.',
     ctaLabel: 'Visit Store',
     ctaHref: '/collections/new-arrivals',
@@ -13,9 +14,15 @@ export default function AdminCampaignsPage() {
     posterUrl: '',
     textTone: 'dark',
     alignment: 'left',
+    headlineFont: 'cormorant',
+    customFontUrl: '',
+    headlineColor: '#0d0d0d',
+    subheadlineColor: '#1a1a1a',
+    panelColor: '#f5f3ef',
   });
   const [editing, setEditing] = useState(false);
   const [message, setMessage] = useState('');
+  const [fontUploading, setFontUploading] = useState(false);
 
   useEffect(() => {
     fetch('/api/admin/hero?page=home')
@@ -25,6 +32,7 @@ export default function AdminCampaignsPage() {
         if (!hero) return;
         setHeroData((current) => ({
           headline: hero.headline ?? current.headline,
+          eyebrow: hero.eyebrow ?? '',
           subheadline: hero.subheadline ?? '',
           ctaLabel: hero.ctaLabel ?? current.ctaLabel,
           ctaHref: hero.ctaHref ?? current.ctaHref,
@@ -32,6 +40,11 @@ export default function AdminCampaignsPage() {
           posterUrl: hero.posterUrl ?? '',
           textTone: hero.textTone ?? 'dark',
           alignment: hero.alignment ?? 'left',
+          headlineFont: hero.headlineFont ?? 'cormorant',
+          customFontUrl: hero.customFontUrl ?? '',
+          headlineColor: hero.headlineColor ?? '#0d0d0d',
+          subheadlineColor: hero.subheadlineColor ?? '#1a1a1a',
+          panelColor: hero.panelColor ?? '#f5f3ef',
         }));
       })
       .catch(() => setMessage('Could not load the saved hero.'));
@@ -45,11 +58,31 @@ export default function AdminCampaignsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: 'home-hero', page: 'home', ...heroData, isActive: true }),
       });
-      if (!res.ok) throw new Error('Failed to update hero');
-      setMessage('Hero updated. Changes appear on the site immediately while the server is running.');
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) throw new Error(data.error ?? 'Failed to update hero');
+      setMessage('Hero saved. Refresh the site to see it; allow up to a minute for cached media.');
       setEditing(false);
-    } catch {
-      setMessage('Failed to update hero.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Failed to update hero.');
+    }
+  };
+
+  const uploadFont = async (file: File | undefined) => {
+    if (!file) return;
+    setFontUploading(true);
+    setMessage('');
+    const body = new FormData();
+    body.append('file', file);
+    try {
+      const res = await fetch('/api/admin/upload', { method: 'POST', body });
+      const data = (await res.json()) as { url?: string; error?: string };
+      if (!res.ok || !data.url) throw new Error(data.error ?? 'Font upload failed.');
+      setHeroData((current) => ({ ...current, customFontUrl: data.url as string, headlineFont: 'custom' }));
+      setMessage('Font uploaded. Save the hero to apply it.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Font upload failed.');
+    } finally {
+      setFontUploading(false);
     }
   };
 
@@ -136,8 +169,15 @@ export default function AdminCampaignsPage() {
                     <p className="font-light mt-1">{heroData.ctaLabel} → {heroData.ctaHref}</p>
                   </div>
                   <div>
-                    <p className="text-[11px] tracking-editorial uppercase text-neutral-500">Text Tone / Alignment</p>
-                    <p className="font-light mt-1 capitalize">{heroData.textTone} / {heroData.alignment}</p>
+                    <p className="text-[11px] tracking-editorial uppercase text-neutral-500">Alignment</p>
+                    <p className="font-light mt-1 capitalize">{heroData.alignment}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] tracking-editorial uppercase text-neutral-500">Typography</p>
+                    <p className="font-light mt-1">
+                      {heroData.headlineFont}
+                      {heroData.customFontUrl ? ' (custom font)' : ''} · {heroData.headlineColor} on {heroData.panelColor}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -150,6 +190,15 @@ export default function AdminCampaignsPage() {
                       type="text"
                       value={heroData.headline}
                       onChange={(e) => setHeroData({ ...heroData, headline: e.target.value })}
+                      className="w-full px-4 py-3 border border-neutral-200 focus:outline-none focus:border-luxuryBlack"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] tracking-editorial uppercase text-neutral-600 mb-2">Eyebrow label</label>
+                    <input
+                      type="text"
+                      value={heroData.eyebrow}
+                      onChange={(e) => setHeroData({ ...heroData, eyebrow: e.target.value })}
                       className="w-full px-4 py-3 border border-neutral-200 focus:outline-none focus:border-luxuryBlack"
                     />
                   </div>
@@ -205,14 +254,17 @@ export default function AdminCampaignsPage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-[11px] tracking-editorial uppercase text-neutral-600 mb-2">Text Tone</label>
+                    <label className="block text-[11px] tracking-editorial uppercase text-neutral-600 mb-2">Headline font</label>
                     <select
-                      value={heroData.textTone}
-                      onChange={(e) => setHeroData({ ...heroData, textTone: e.target.value as 'light' | 'dark' })}
+                      value={heroData.headlineFont}
+                      onChange={(e) => setHeroData({ ...heroData, headlineFont: e.target.value })}
                       className="w-full px-4 py-3 border border-neutral-200 focus:outline-none focus:border-luxuryBlack"
                     >
-                      <option value="dark">Dark</option>
-                      <option value="light">Light</option>
+                      <option value="cormorant">Cormorant Garamond</option>
+                      <option value="inter">Inter</option>
+                      <option value="georgia">Georgia</option>
+                      <option value="times">Times New Roman</option>
+                      <option value="custom">Custom uploaded font</option>
                     </select>
                   </div>
                   <div>
@@ -222,10 +274,66 @@ export default function AdminCampaignsPage() {
                       onChange={(e) => setHeroData({ ...heroData, alignment: e.target.value as 'left' | 'center' | 'right' })}
                       className="w-full px-4 py-3 border border-neutral-200 focus:outline-none focus:border-luxuryBlack"
                     >
-                      <option value="left">Left</option>
-                      <option value="center">Center</option>
-                      <option value="right">Right</option>
+                      <option value="left">Left text / image right</option>
+                      <option value="center">Centered text / image right</option>
+                      <option value="right">Right text / image left</option>
                     </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-[11px] tracking-editorial uppercase text-neutral-600 mb-2">Upload custom font (woff2, woff, ttf, otf)</label>
+                    <input
+                      type="file"
+                      accept=".woff2,.woff,.ttf,.otf"
+                      disabled={fontUploading}
+                      onChange={(e) => void uploadFont(e.target.files?.[0])}
+                      className="w-full text-sm"
+                    />
+                    {heroData.customFontUrl && (
+                      <p className="text-xs text-neutral-500 mt-2 break-all">Current: {heroData.customFontUrl}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-[11px] tracking-editorial uppercase text-neutral-600 mb-2">Custom font URL (optional)</label>
+                    <input
+                      type="text"
+                      value={heroData.customFontUrl}
+                      onChange={(e) => setHeroData({ ...heroData, customFontUrl: e.target.value, headlineFont: e.target.value ? 'custom' : heroData.headlineFont })}
+                      placeholder="/uploads/...woff2 or https://...woff2"
+                      className="w-full px-4 py-3 border border-neutral-200 focus:outline-none focus:border-luxuryBlack"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <label className="block text-[11px] tracking-editorial uppercase text-neutral-600 mb-2">Headline / CTA colour</label>
+                    <input
+                      type="color"
+                      value={heroData.headlineColor}
+                      onChange={(e) => setHeroData({ ...heroData, headlineColor: e.target.value })}
+                      className="w-full h-12 border border-neutral-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] tracking-editorial uppercase text-neutral-600 mb-2">Subheadline colour</label>
+                    <input
+                      type="color"
+                      value={heroData.subheadlineColor}
+                      onChange={(e) => setHeroData({ ...heroData, subheadlineColor: e.target.value })}
+                      className="w-full h-12 border border-neutral-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] tracking-editorial uppercase text-neutral-600 mb-2">Text panel colour</label>
+                    <input
+                      type="color"
+                      value={heroData.panelColor}
+                      onChange={(e) => setHeroData({ ...heroData, panelColor: e.target.value })}
+                      className="w-full h-12 border border-neutral-200"
+                    />
                   </div>
                 </div>
                 {message && <p role="status" className="text-sm text-neutral-700">{message}</p>}

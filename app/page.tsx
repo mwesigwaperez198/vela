@@ -4,7 +4,7 @@ import { CollectionGrid } from '@/components/CollectionGrid';
 import { HeroSection } from '@/components/HeroSection';
 import { HeroSkeleton, ProductGridSkeleton } from '@/components/Skeletons';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export default function HomePage() {
   const featured = process.env.FEATURED_COLLECTION_SLUG ?? 'new-arrivals';

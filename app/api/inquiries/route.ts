@@ -26,6 +26,11 @@ export async function POST(request: Request) {
     );
   }
 
-  const inquiry = cmsStore.addInquiry({ name, contact, email, message, source });
-  return NextResponse.json({ success: true, inquiry }, { status: 201 });
+  try {
+    const inquiry = await cmsStore.addInquiry({ name, contact, email, message, source });
+    return NextResponse.json({ success: true, inquiry }, { status: 201 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Could not save the inquiry.';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }

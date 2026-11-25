@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
+import { blobDelete, blobList, isBlobConfigured } from '@/lib/blob-store';
 
 interface FileItem {
   id: string;
@@ -29,6 +30,13 @@ function formatBytes(bytes: number): string {
   return `${parseFloat((bytes / Math.pow(1024, i)).toFixed(1))} ${sizes[i]}`;
 }
 
+function typeOf(name: string): FileItem['type'] {
+  const ext = name.split('.').pop()?.toLowerCase() ?? '';
+  if (IMAGES.includes(ext)) return 'image';
+  if (VIDEOS.includes(ext)) return 'video';
+  return 'file';
+}
+
 function collect(directory: string, relative = ''): FileItem[] {
   const items: FileItem[] = [];
   for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
@@ -40,13 +48,12 @@ function collect(directory: string, relative = ''): FileItem[] {
     }
     if (!entry.isFile()) continue;
     const stat = fs.statSync(absolute);
-    const ext = entry.name.split('.').pop()?.toLowerCase() ?? '';
     items.push({
-      id: `${relativePath}-${stat.mtimeMs}`,
+      id: `local-${relativePath}-${stat.mtimeMs}`,
       name: entry.name,
       path: relativePath,
       url: `/uploads/${relativePath.split('/').map(encodeURIComponent).join('/')}`,
-      type: IMAGES.includes(ext) ? 'image' : VIDEOS.includes(ext) ? 'video' : 'file',
+      type: typeOf(entry.name),
       size: formatBytes(stat.size),
       uploaded: new Date(stat.mtime).toISOString().split('T')[0] ?? '',
     });
@@ -62,6 +69,27 @@ export async function GET() {
     console.error('[media] listing failed', error);
     return NextResponse.json({ error: 'Could not read the media library.' }, { status: 500 });
   }
+
+  if (isBlobConfigured()) {
+    try {
+      const blobs = await blobList('uploads/');
+      files = [
+        ...files,
+        ...blobs.map((blob) => ({
+          id: `blob-${blob.pathname}-${blob.uploadedAt}`,
+          name: blob.pathname.split('/').pop() ?? blob.pathname,
+          path: blob.pathname,
+          url: blob.url,
+          type: typeOf(blob.pathname),
+          size: formatBytes(blob.size),
+          uploaded: new Date(blob.uploadedAt).toISOString().split('T')[0] ?? '',
+        })),
+      ];
+    } catch (error) {
+      console.error('[media] blob listing failed', error);
+    }
+  }
+
   files.sort((a, b) => b.id.localeCompare(a.id));
   return NextResponse.json({ files });
 }
@@ -69,7 +97,21 @@ export async function GET() {
 export async function DELETE(request: Request) {
   const body = await request.json().catch(() => null);
   const relative = typeof body?.path === 'string' ? body.path : '';
-  const target = relative ? resolveUpload(relative) : null;
+  if (!relative) {
+    return NextResponse.json({ error: 'Invalid file path.' }, { status: 400 });
+  }
+
+  if (isBlobConfigured() && relative.startsWith('uploads/')) {
+    try {
+      await blobDelete(relative);
+      return NextResponse.json({ success: true });
+    } catch (error) {
+      console.error('[media] blob delete failed', error);
+      return NextResponse.json({ error: 'Could not delete the file.' }, { status: 500 });
+    }
+  }
+
+  const target = resolveUpload(relative);
   if (!target) {
     return NextResponse.json({ error: 'Invalid file path.' }, { status: 400 });
   }

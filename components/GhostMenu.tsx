@@ -67,11 +67,11 @@ export function GhostMenu() {
           initial={false}
           animate={{ y: hidden && !menuOpen ? '-100%' : '0%' }}
           transition={{ duration: 0.55, ease: EASE }}
-          className="fixed inset-x-0 top-0 z-50 text-white mix-blend-difference"
+          className="fixed inset-x-0 top-0 z-50 border-b border-neutral-200 bg-white/95 text-luxuryBlack backdrop-blur"
         >
           <nav
             aria-label="Primary"
-            className="grid grid-cols-[1fr_auto_1fr] items-center px-4 py-5 text-[11px] font-extralight tracking-editorial uppercase lg:px-10"
+            className="grid grid-cols-[1fr_auto_1fr] items-center px-4 py-5 text-[11px] font-medium tracking-editorial uppercase lg:px-10"
           >
             <div className="flex items-center gap-8">
               <button

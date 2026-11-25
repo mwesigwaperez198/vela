@@ -2,7 +2,19 @@
 
 import { useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
-import type { SiteConfig } from '@/lib/cms-config';
+
+interface SiteConfig {
+  brandName: string;
+  brandNameSecondary: string;
+  tagline: string;
+  phone: string;
+  whatsapp: string;
+  email: string;
+  location: string;
+  logoText: string;
+  showBag: boolean;
+  ghostNavEnabled: boolean;
+}
 
 const links = [
   { title: 'Dashboard', href: '/admin' },
@@ -56,7 +68,7 @@ export default function AdminSettingsPage() {
       });
       const data = (await res.json()) as { error?: string };
       if (!res.ok) throw new Error(data.error ?? 'Could not save settings.');
-      setMessage('Settings saved. Changes appear in the navigation while the server is running.');
+      setMessage('Settings saved. Refresh the site to see the changes.');
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Could not save settings.');
     }

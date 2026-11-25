@@ -76,10 +76,11 @@ export default function AdminNavigationPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nav: navItems }),
       });
-      if (!res.ok) throw new Error('Failed to update navigation');
-      alert('Navigation updated successfully!');
-    } catch {
-      alert('Failed to update navigation');
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) throw new Error(data.error ?? 'Failed to update navigation');
+      alert('Navigation saved. Refresh the site to see the changes.');
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to update navigation');
     } finally {
       setSaving(false);
     }

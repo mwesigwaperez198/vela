@@ -35,6 +35,7 @@ export interface VisualAsset {
 export interface CampaignHero {
   slug: string;
   headline: string;
+  eyebrow?: string;
   subheadline?: string;
   ctaLabel: string;
   ctaHref: string;
@@ -42,6 +43,11 @@ export interface CampaignHero {
   videoUrl?: string;
   textTone: 'light' | 'dark';
   alignment: 'left' | 'center' | 'right';
+  headlineFont?: string;
+  customFontUrl?: string;
+  headlineColor?: string;
+  subheadlineColor?: string;
+  panelColor?: string;
 }
 
 /* ---------- Unified storefront schema ---------- */
