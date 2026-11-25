@@ -32,7 +32,11 @@ export default function AdminNavigationPage() {
     const newItems = [...navItems];
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
     if (targetIndex < 0 || targetIndex >= newItems.length) return;
-    [newItems[index], newItems[targetIndex]] = [newItems[targetIndex], newItems[index]];
+    const current = newItems[index];
+    const target = newItems[targetIndex];
+    if (!current || !target) return;
+    newItems[index] = target;
+    newItems[targetIndex] = current;
     newItems.forEach((item, i) => (item.order = i + 1));
     setNavItems(newItems);
   };
