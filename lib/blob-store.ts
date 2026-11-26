@@ -53,6 +53,11 @@ function missingToken(): Error {
   );
 }
 
+function requestBody(body: string | ArrayBuffer | Uint8Array): BodyInit {
+  if (typeof body === 'string' || body instanceof ArrayBuffer) return body;
+  return Uint8Array.from(body);
+}
+
 export async function blobPut(
   pathname: string,
   body: string | ArrayBuffer | Uint8Array,
@@ -71,7 +76,7 @@ export async function blobPut(
       'x-cache-control-max-age': '60',
       'x-content-type': contentType,
     }),
-    body,
+    body: requestBody(body),
     cache: 'no-store',
   });
   if (!response.ok) throw await failure(response, 'upload');
