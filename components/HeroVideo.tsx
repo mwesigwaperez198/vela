@@ -6,8 +6,10 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import type { CampaignHero } from '@/lib/types';
 
+const DEFAULT_FONT = "'Cormorant Garamond', Georgia, serif";
+
 const FONTS: Record<string, string> = {
-  cormorant: "'Cormorant Garamond', Georgia, serif",
+  cormorant: DEFAULT_FONT,
   inter: "'Inter', Helvetica Neue, Arial, sans-serif",
   georgia: 'Georgia, serif',
   times: "'Times New Roman', Times, serif",
@@ -20,7 +22,7 @@ const TEXT_ALIGN = {
 } as const;
 
 function fontStack(hero: CampaignHero): string {
-  const preset = FONTS[hero.headlineFont ?? 'cormorant'] ?? FONTS.cormorant;
+  const preset = FONTS[hero.headlineFont ?? 'cormorant'] ?? DEFAULT_FONT;
   return hero.customFontUrl ? `'DA-Vela-Custom', ${preset}` : preset;
 }
 
